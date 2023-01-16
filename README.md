@@ -1,2 +1,2 @@
 # bayesTPC
-Code for crash course on Bayesian TPC estimation
+Code for crash course on Bayesian estimation of thermal performance curves.
