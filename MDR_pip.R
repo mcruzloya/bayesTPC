@@ -1,7 +1,9 @@
 ### Code for brief crash course on Bayesian TPC estimation.
 
 # Note: Please change this to your working directory!
-setwd("/Users/mauricio/Dropbox/mordecailab/bayesTPC")
+setwd("/Users/mauricio/git/bayesTPC")
+
+set.seed(42) # Set seed for reproducibility.
 
 # We will need these packages. Please make sure you install them beforehand!
 library('R2jags')
@@ -102,7 +104,7 @@ sink()
 ##### Calculate initial values for MCMC.
 ## We are picking random values so that every chain will start at a different place. 
 inits<-function(){list(
-  c = runif(0.00001, 0.001),
+  c = runif(0.0001, 0.001),
   Tmax = runif(1, min=35, max=40),
   Tmin = runif(1, min=5, max=10),
   sigma = runif(1, min=0.001, max=0.01))}
@@ -133,7 +135,9 @@ unif.out <- jags(data=jag.data, inits=inits, parameters.to.save=parameters, mode
 unif.out
 round(unif.out$BUGSoutput$summary, 6)
 mcmcplot(unif.out)
-save(unif.out, file = "MDR_Cpip_jags_unif.Rdata")
+
+# We can save output for further processing.
+#save(unif.out, file = "MDR_Cpip_jags_unif.Rdata")
 
 
 chains.unif <- MCMCchains(unif.out, params=c("Tmin", "Tmax", "c"))

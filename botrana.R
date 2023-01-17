@@ -71,14 +71,16 @@ cat("
 sink()
 
 # Simple model with informative priors for temperature parameters.
+# Note: JAGS parametrizes normal distributions with the precision (1/variance)
+# instead of the standard deviation or variance.
 sink("briere_inf.txt")
 cat("
     model{
     
     ## Priors
     c ~ dunif(0, 0.001)
-    Tmin ~ dnorm(10, 1 / 25) # Assumes Tmin has a 95% chance to be in interval (0, 20).
-    Tmax ~ dnorm(35, 1 / 25) # Assumes Tmax has a 95% chance to be in interval (25, 45).
+    Tmin ~ dnorm(10, 1 / 25) # sigma=5 Assumes Tmin has a 95% chance to be in interval (0, 20).
+    Tmax ~ dnorm(35, 1 / 25) # sigma=5 Assumes Tmax has a 95% chance to be in interval (25, 45).
     sigma ~ dunif(0, 0.5)
     tau <- 1 / (sigma * sigma)
     
@@ -124,7 +126,7 @@ pupae.out <- jags(data=jag.data, inits=inits, parameters.to.save=parameters, mod
                      n.thin=nt, n.chains=nc, n.burnin=nb, n.iter=ni, DIC=TRUE, working.directory=getwd())
 
 round(pupae.out$BUGSoutput$summary, 4)
-mcmcplot(pupae.out)
+mcmcplot(pupae.out) # MCMC convergence diagnostic plots.
 
 chains.unif <- MCMCchains(pupae.out, params=c("Tmin", "Tmax", "c"))
 temps <- seq(5, 45, 0.1) 
@@ -157,7 +159,7 @@ MCMCtrace(pupae.out, params=c("Tmin", "Tmax", "c", "sigma"),
 
 
 
-##### Run JAGS
+##### Run JAGS for model with infomative priors.
 pupae.out.inf <- jags(data=jag.data, inits=inits, parameters.to.save=parameters, model.file="briere_inf.txt",
                   n.thin=nt, n.chains=nc, n.burnin=nb, n.iter=ni, DIC=TRUE, working.directory=getwd())
 
@@ -168,8 +170,6 @@ mcmcplot(pupae.out.inf)
 chains.inf <- MCMCchains(pupae.out.inf, params=c("Tmin", "Tmax", "c"))
 temps <- seq(5, 45, 0.1) 
 curves <- apply(chains.inf, 1, function(x) briere(temps, x[1], x[2], x[3]))
-
-
 
 # Get mean curve and 2.5% and 97.5% quantiles (for CI).
 meancurve <- apply(curves, 1, mean)
@@ -191,6 +191,7 @@ prior.Tmax <- rnorm(125000, 35, 5)
 prior.c <- runif(125000, 0, 0.001)
 prior.sigma <- runif(125000, 0, 0.2)
 
+# Plot priors along with posterior.
 MCMCtrace(pupae.out.inf, params=c("Tmin", "Tmax", "c", "sigma"), 
           priors=cbind(prior.Tmin, prior.Tmax, prior.c, prior.sigma))
 
