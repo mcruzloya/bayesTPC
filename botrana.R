@@ -3,6 +3,9 @@
 # Note: Please change this to your working directory!
 setwd("/Users/mauricio/Dropbox/mordecailab/bayesTPC")
 
+set.seed(42) # Set seed for reproducibility.
+
+
 # We will need these packages. Please make sure you install them beforehand!
 library('R2jags')
 library('mcmcplots')
@@ -99,7 +102,7 @@ sink()
 
 ##### inits Function
 inits<-function(){list(
-  c = runif(0.00001, 0.001),
+  c = runif(0.0001, 0.001),
   Tmax = runif(1, min=35, max=40),
   Tmin = runif(1, min=5, max=10),
   sigma = runif(1, min=0.01, max=0.15))}
